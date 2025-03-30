@@ -1,14 +1,22 @@
-#!/bin/bash
+#!/bin/sh
 
-set  -e
+# Fail fast on error, undefined variable, or broken pipe
+set -euo pipefail
 
-if [ -z "$EXTERNAL_IP" ]; then
-  echo "Error: EXTERNAL_IP undefined"
-  exit 1
-fi
+# List of required environment variables
+REQUIRED_VARS="EXTERNAL_IP INTERFACE_HTTPS_PORT UPSTREAM_SERVER UPSTREAM_PORT SERVER_NAME CERT_FILENAME KEY_FILENAME"
 
-export EXTERNAL_IP
+# Validate all required environment variables
+for var in $REQUIRED_VARS; do
+  if [ -z "${!var:-}" ]; then
+    echo "Error: Environment variable '$var' is not defined"
+    exit 1
+  fi
+done
 
-envsubst '${EXTERNAL_IP} ${INTERFACE_HTTPS_PORT} ${UPSTREAM_SERVER} ${UPSTREAM_PORT} ${SERVER_NAME} ${KEY_FILENAME} ${CERT_FILENAME}' < /etc/nginx/nginx.template > /etc/nginx/nginx.conf
+# Generate nginx.conf from template
+envsubst '${EXTERNAL_IP} ${INTERFACE_HTTPS_PORT} ${UPSTREAM_SERVER} ${UPSTREAM_PORT} ${SERVER_NAME} ${KEY_FILENAME} ${CERT_FILENAME}' \
+  < /etc/nginx/nginx.template > /etc/nginx/nginx.conf
 
-nginx -g 'daemon off;'
+# Start NGINX in the foreground
+exec nginx -g 'daemon off;'
