@@ -5,7 +5,7 @@ RUN apk add --no-cache curl
 
 # Create nginx user and group safely
 ARG NGINX_CONF_GID
-RUN addgroup -g ${NGINX_CONF_GID} nginx && \
+RUN addgroup -g nginx && \
     adduser -D -G nginx -s /sbin/nologin nginx
 
 # Copy entrypoint and set correct permissions
