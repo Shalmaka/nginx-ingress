@@ -16,7 +16,7 @@ services:
       - /var/log/nginx:uid=101,gid=101,mode=0755
 
     # volumes:
-    #   - ./certs:/www/certs:ro
+    #   - ./certs:/usr/share/nginx/certs:ro
 
     networks:
       ${MACVLAN_NAME}:
