@@ -1,0 +1,5 @@
+networks:
+  internal:
+    internal: true
+  ${MACVLAN_NAME}:
+    external: true

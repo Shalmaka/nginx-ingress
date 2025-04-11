@@ -1,0 +1,5 @@
+services:
+  ingress:
+    extends:
+      file: ./ingress/docker-compose.yml
+      service: ingress

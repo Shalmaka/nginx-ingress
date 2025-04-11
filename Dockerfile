@@ -1,33 +1,35 @@
-FROM nginx:1.26.1-alpine-slim
+FROM nginx:1.27.4-alpine-slim
 
-# Install only what's necessary
-RUN apk add --no-cache curl
+# Install required packages (minimal)
+RUN apk add --no-cache curl && apk upgrade --no-cache
 
-# Create nginx user and group safely
-ARG NGINX_CONF_GID
-RUN addgroup -g nginx && \
-    adduser -D -G nginx -s /sbin/nologin nginx
+# Remove default HTML files
+RUN rm -rf /usr/share/nginx/html/*
 
 # Copy entrypoint and set correct permissions
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod 700 /entrypoint.sh && \
     chown nginx:nginx /entrypoint.sh
 
-# Copy NGINX config template
-COPY nginx.conf.template /etc/nginx/nginx.template
+# Copy base and template NGINX configs
+COPY nginx.base.conf /etc/nginx/nginx.conf
+COPY nginx.template.conf /etc/nginx/nginx.template
 
-# Prepare log files
+# Optional: leave /usr/share/nginx/html owned by nginx, but writeable externally via volume
+RUN mkdir -p /usr/share/nginx/html && \
+    chown -R nginx:nginx /usr/share/nginx/html
+
+# Prepare log files and ownership
 RUN touch /var/log/nginx/audit_platform_error.log && \
     touch /var/log/nginx/audit_platform_access.log && \
     chown -R nginx:nginx /var/log/nginx/
 
-# Prepare required directories and permissions
-RUN touch /var/run/nginx.pid && \
-    mkdir -p /var/cache/nginx && \
-    mkdir -p /www/certs/ && \
-    chown -R nginx:nginx /var/run/nginx.pid /var/cache/nginx /etc/nginx /www/certs
+# Prepare NGINX runtime dirs and certs
+RUN mkdir -p /var/cache/nginx /www/certs && \
+    touch /var/run/nginx.pid && \
+    chown -R nginx:nginx /var/cache/nginx /var/run/nginx.pid /etc/nginx /www
 
-# Run as non-root user
+# Set user (non-root)
 USER nginx
 
 # Entrypoint

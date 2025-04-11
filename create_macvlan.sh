@@ -8,8 +8,8 @@ PARENT_IFACE="${INTERFACE_NAME}.${VLAN_ID}"
 
 # Create the macvlan network using the MACVLAN_NAME from the .env file
 docker network create -d macvlan \
-  --subnet=192.168.1.0/24 \
-  --gateway=192.168.1.1 \
+  --subnet=${SUBNET} \
+  --gateway=${GATEWAY} \
   -o parent=${PARENT_IFACE} \
   ${MACVLAN_NAME}
 
