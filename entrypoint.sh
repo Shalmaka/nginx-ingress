@@ -57,7 +57,6 @@ else
 fi
 
 echo "[INFO] NGINX started with the following configuration:"
-cat /etc/nginx/conf.d/server.conf
 echo "[INFO] NGINX version: $(nginx -v 2>&1)"
 echo "[INFO] NGINX configuration test:"
 nginx -T
